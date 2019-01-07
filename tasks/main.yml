@@ -1,0 +1,59 @@
+---
+- name: Install base packages
+  become: yes
+  apt: 
+    name: "{{ base_packages }}"
+    state: present
+
+- name: Setup zsh as default shell for {{ user_name }}
+  become: yes
+  user:
+    name: "{{ user_name }}"
+    shell: /bin/zsh
+    groups: sudo
+
+- name: Create dir for {{ user_name }} systemd services
+  file:
+    dest: /home/{{ user_name }}/.config/systemd/user
+    state: directory
+
+- name: Add .profile
+  template:
+    dest: "/home/{{ user_name }}/"
+    src: templates/.profile
+
+- name: Get Z
+  git:
+    dest: "{{ base_z_path|dirname }}"
+    repo: "{{ base_z_repo }}"
+    depth: 1
+
+- name: Get Base16 colors for xterm
+  git:
+    dest: "{{ base_base16_xresources_path }}"
+    repo: "{{ base_base16_xresources_repo }}"
+    depth: 1
+
+- name: Setup X resources
+  block:
+    - slurp:
+        src: "{{ base_base16_xresources_path }}/xresources/base16-{{ base_base16_scheme }}.Xresources"
+      register: base_base16_colors_encoded
+    - template:
+        dest: "/home/{{ user_name }}/.Xresources"
+        src: templates/.Xresources
+      vars:
+        base_base16_colors: "{{ base_base16_colors_encoded['content'] | b64decode }}"
+      notify: xresources load
+
+- name: Install oh-my-zsh
+  block:
+    - get_url:
+        url: https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+        dest: /tmp/
+    - command: /tmp/install.sh
+
+- name: Setup .zshrc
+  template:
+    dest: "/home/{{ user_name }}"
+    src: templates/.zshrc
