@@ -1,3 +1,0 @@
----
-- name: xresources load
-  command: xrdb -load ~/.Xresources

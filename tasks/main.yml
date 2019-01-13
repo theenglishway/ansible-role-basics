@@ -2,58 +2,87 @@
 - name: Install base packages
   become: yes
   apt: 
-    name: "{{ base_packages }}"
+    name: "{{ basics_packages }}"
     state: present
 
-- name: Setup zsh as default shell for {{ user_name }}
+- name: Setup zsh as default shell for {{ user_name }} & root
   become: yes
   user:
-    name: "{{ user_name }}"
+    name: "{{ item }}"
     shell: /bin/zsh
     groups: sudo
+  loop:
+    - "{{ user_name }}"
+    - root
 
 - name: Create dir for {{ user_name }} systemd services
   file:
-    dest: /home/{{ user_name }}/.config/systemd/user
+    dest: "{{ user_home }}/.config/systemd/user"
     state: directory
 
 - name: Add .profile
   template:
-    dest: "/home/{{ user_name }}/"
+    dest: "{{ user_home }}/"
     src: templates/.profile
 
 - name: Get Z
   git:
-    dest: "{{ base_z_path|dirname }}"
-    repo: "{{ base_z_repo }}"
+    dest: "{{ basics_z_path|dirname }}"
+    repo: "{{ basics_z_repo }}"
     depth: 1
+
+- name: Install oh-my-zsh for {{ user_name }}
+  git:
+    repo: 'https://github.com/robbyrussell/oh-my-zsh'
+    dest: "{{ user_home }}/.oh-my-zsh"
+    depth: 1
+
+- name: Install oh-my-zsh for root
+  become: yes
+  git:
+    repo: 'https://github.com/robbyrussell/oh-my-zsh'
+    dest: /root/.oh-my-zsh
+    depth: 1
+
+- name: Setup .zshrc for {{ user_name }}
+  template:
+    dest: "{{ user_home }}"
+    src: templates/.zshrc
+
+- name: Setup .zshrc for root
+  become: yes
+  template:
+    dest: /root/
+    src: templates/.zshrc
+  vars:
+
+
+- name: Setup .vimrc for {{ user_name }}
+  copy:
+    dest: "{{ user_home }}"
+    src: files/.vimrc
+
+- name: Setup .vimrc for root
+  become: yes
+  copy:
+    dest: /root/
+    src: files/.vimrc
 
 - name: Get Base16 colors for xterm
   git:
-    dest: "{{ base_base16_xresources_path }}"
-    repo: "{{ base_base16_xresources_repo }}"
+    dest: "{{ basics_base16_xresources_path }}"
+    repo: "{{ basics_base16_xresources_repo }}"
     depth: 1
+  when: has_x_server
 
 - name: Setup X resources
   block:
     - slurp:
-        src: "{{ base_base16_xresources_path }}/xresources/base16-{{ base_base16_scheme }}.Xresources"
-      register: base_base16_colors_encoded
+        src: "{{ basics_base16_xresources_path }}/xresources/base16-{{ basics_base16_scheme }}.Xresources"
+      register: basics_base16_colors_encoded
     - template:
-        dest: "/home/{{ user_name }}/.Xresources"
+        dest: "{{ user_home }}/.Xresources"
         src: templates/.Xresources
       vars:
-        base_base16_colors: "{{ base_base16_colors_encoded['content'] | b64decode }}"
-      notify: xresources load
-
-- name: Install oh-my-zsh
-  block:
-    - get_url:
-        url: https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh
-        dest: /tmp/
-    - command: /tmp/install.sh
-
-- name: Setup .zshrc
-  template:
-    dest: "/home/{{ user_name }}"
-    src: templates/.zshrc
+        basics_base16_colors: "{{ basics_base16_colors_encoded['content'] | b64decode }}"
+  when: has_x_server

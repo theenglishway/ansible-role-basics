@@ -1,13 +1,19 @@
 ---
-base_packages:
+user_name:
+has_x_server:
+
+user_home: /home/{{ user_name }}
+
+basics_packages:
   - zsh
+  - git
   - htop
   - vim
   - curl
 
-base_z_repo: https://github.com/rupa/z.git
-base_z_path: /home/{{ user_name }}/.z/z.sh
+basics_z_repo: https://github.com/rupa/z.git
+basics_z_path: /home/{{ user_name }}/.z/z.sh
 
-base_base16_scheme: gruvbox-dark-pale
-base_base16_xresources_repo: https://github.com/chriskempson/base16-xresources.git
-base_base16_xresources_path: /home/{{ user_name }}/.local/share/base16-xresources
+basics_base16_scheme: gruvbox-dark-pale
+basics_base16_xresources_repo: https://github.com/chriskempson/base16-xresources.git
+basics_base16_xresources_path: /home/{{ user_name }}/.local/share/base16-xresources

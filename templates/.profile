@@ -22,6 +22,7 @@ if [ -d "$HOME/bin" ] ; then
 fi
 
 # Load .Xresources if it exists
+# TODO : to be put into the i3 config file
 if [ -f "$HOME/.Xresources" ] ; then
     xrdb -load $HOME/.Xresources
 fi
