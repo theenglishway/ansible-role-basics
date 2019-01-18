@@ -16,20 +16,14 @@ xterm*faceName: terminus-10
 
 #define WINDOWGEOMETRY 80x30
 ! xterm
-xterm*dynamiccolors:      true
+xterm*dynamicColors:      true
 xterm*utf8:               2
 xterm*geometry:           WINDOWGEOMETRY
-xterm*visualBell:         off
+xterm*visualBell:         on
 xterm*highlightSelection: true
-!xterm*colorBD:         lightcyan
-!xterm*colorBDMode:     on
-!xterm*colorUL:         white
-!xterm*colorULMode:     on
-!xterm*scrollKey:       true
-!xterm*scrollBar:       true
 
 ! Scroll-back behaviour
-xterm*savelines: 16384
+xterm*saveLines: 100000
 xterm*scrollTtyOutput: false
 xterm*scrollKey: true
 xterm*rightScrollBar: true

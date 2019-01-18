@@ -1,5 +1,6 @@
 ---
 user_name:
+user_groups: []
 has_x_server:
 
 user_home: /home/{{ user_name }}
@@ -10,10 +11,15 @@ basics_packages:
   - htop
   - vim
   - curl
+  - build-essentials
 
 basics_z_repo: https://github.com/rupa/z.git
 basics_z_path: /home/{{ user_name }}/.z/z.sh
 
-basics_base16_scheme: gruvbox-dark-pale
+basics_base16_scheme: monokai
 basics_base16_xresources_repo: https://github.com/chriskempson/base16-xresources.git
 basics_base16_xresources_path: /home/{{ user_name }}/.local/share/base16-xresources
+
+basics_jo_version: 1.2
+basics_jo_archive_url: https://github.com/jpmens/jo/releases/download/{{ basics_jo_version }}/jo-{{ basics_jo_version }}.tar.gz
+basics_jo_extract_path: "{{ user_home }}/jo-{{ basics_jo_version }}"

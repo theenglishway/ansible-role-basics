@@ -1,5 +1,5 @@
 ---
-- name: Install base packages
+- name: Install base packages {{ basics_packages|join(',') }}
   become: yes
   apt: 
     name: "{{ basics_packages }}"
@@ -10,7 +10,8 @@
   user:
     name: "{{ item }}"
     shell: /bin/zsh
-    groups: sudo
+    groups: "{{ user_groups }}"
+    append: yes
   loop:
     - "{{ user_name }}"
     - root
@@ -86,3 +87,21 @@
       vars:
         basics_base16_colors: "{{ basics_base16_colors_encoded['content'] | b64decode }}"
   when: has_x_server
+
+
+- name: Add Jo for JSON output
+  block:
+    - unarchive:
+        src: "{{ basics_jo_archive_url }}"
+        dest: "{{ user_home }}"
+        remote_src: yes
+    - command: ./configure
+      args:
+        chdir: "{{ basics_jo_extract_path }}"
+    - command: make check
+      args:
+        chdir: "{{ basics_jo_extract_path }}"
+    - command: make install
+      become: yes
+      args:
+        chdir: "{{ basics_jo_extract_path }}"
